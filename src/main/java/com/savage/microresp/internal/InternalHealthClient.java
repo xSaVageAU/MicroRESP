@@ -1,4 +1,4 @@
-package com.savage.microresp;
+package com.savage.microresp.internal;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

@@ -1,5 +1,7 @@
 package com.savage.microresp;
 
+import com.savage.microresp.internal.InternalHealthClient;
+import com.savage.microresp.internal.server.MicroRespServer;
 import net.fabricmc.loader.api.FabricLoader;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -56,7 +58,6 @@ public class MicroRespManager {
             microRespServer = new MicroRespServer(
                 config.getPort(), 
                 config.getPassword(), 
-                null, // No persistent data directory needed
                 config.getMaxConnections(),
                 config.getBindAddress(),
                 config.getTimeoutMillis()
