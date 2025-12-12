@@ -17,7 +17,7 @@ public class MicroRespConfig {
 
     private int port = 6379;
     private String bindAddress = "127.0.0.1";
-    private int timeoutMillis = 30000;
+    private int timeoutMillis = 0; // 0 = Infinite/No timeout
     private String password = "";
     private int maxConnections = 100;
 
