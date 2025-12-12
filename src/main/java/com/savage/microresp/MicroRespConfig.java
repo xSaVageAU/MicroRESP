@@ -16,6 +16,8 @@ public class MicroRespConfig {
     private static final String CONFIG_FILE = "microresp.json";
 
     private int port = 6379;
+    private String bindAddress = "127.0.0.1";
+    private int timeoutMillis = 30000;
     private String password = "";
     private int maxConnections = 100;
 
@@ -68,5 +70,13 @@ public class MicroRespConfig {
 
     public int getMaxConnections() {
         return maxConnections;
+    }
+
+    public String getBindAddress() {
+        return bindAddress;
+    }
+
+    public int getTimeoutMillis() {
+        return timeoutMillis;
     }
 }

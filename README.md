@@ -1,4 +1,4 @@
-# MicroRESP ⚡
+# MicroRESP
 
 **A lightweight, embedded Redis-compatible server for Minecraft Fabric.**
 

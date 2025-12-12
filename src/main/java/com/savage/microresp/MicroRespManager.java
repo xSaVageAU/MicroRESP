@@ -57,7 +57,9 @@ public class MicroRespManager {
                 config.getPort(), 
                 config.getPassword(), 
                 null, // No persistent data directory needed
-                config.getMaxConnections()
+                config.getMaxConnections(),
+                config.getBindAddress(),
+                config.getTimeoutMillis()
             );
             microRespServer.start();
 

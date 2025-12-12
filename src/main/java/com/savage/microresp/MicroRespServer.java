@@ -21,6 +21,8 @@ public class MicroRespServer {
     private final int port;
     private final String password;
     private final Path dataDirectory;
+    private final String bindAddress;
+    private final int timeoutMillis;
     private final int maxConnections;
     
     private ServerSocket serverSocket;
@@ -53,15 +55,17 @@ public class MicroRespServer {
         }
     }
 
-    public MicroRespServer(int port, String password, Path dataDirectory, int maxConnections) {
+    public MicroRespServer(int port, String password, Path dataDirectory, int maxConnections, String bindAddress, int timeoutMillis) {
         this.port = port;
         this.password = password;
         this.dataDirectory = dataDirectory;
         this.maxConnections = maxConnections;
+        this.bindAddress = bindAddress;
+        this.timeoutMillis = timeoutMillis;
     }
 
     public void start() throws IOException {
-        serverSocket = new ServerSocket(port);
+        serverSocket = new ServerSocket(port, 50, java.net.InetAddress.getByName(bindAddress));
         // Fix: Use Java 21 Virtual Threads for high performance and scalability
         executorService = Executors.newVirtualThreadPerTaskExecutor();
         
@@ -111,6 +115,7 @@ public class MicroRespServer {
                 try {
                     Socket clientSocket = serverSocket.accept();
                     clientSocket.setKeepAlive(true); // Detect broken connections
+                    clientSocket.setSoTimeout(timeoutMillis); // Auto-disconnect idle clients
                     String clientId = "client-" + (++clientCounter);
                     
                     // Manually enforce max connections since Virtual Thread executor is unbounded
