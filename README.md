@@ -4,8 +4,8 @@
 
 MicroRESP provides a simple, in-process RESP (Redis Serialization Protocol) server that runs alongside your Minecraft server. It allows other mods to communicate using standard Pub/Sub and Key-Value commands without requiring an external Redis database installation.
 
-## 🎯 Who is this for?
-MicroRESP is designed for **Modpack Developers** and **Server Admins** who need:
+##  Who is this for?
+MicroRESP is designed for **Developers** and **Server Admins** who need:
 *   **Inter-mod communication** via Pub/Sub (e.g., cross-server chat, economy syncing).
 *   **Simple Key-Value caching** for transient data.
 *   **Zero-setup required**: No Docker, no external hosting, no `apt-get install redis`. Just drop the mod in the `mods` folder.
@@ -16,7 +16,6 @@ MicroRESP is designed for **Modpack Developers** and **Server Admins** who need:
 *   ✅ **Pub/Sub**: Full support for `PUBLISH`, `SUBSCRIBE`, `UNSUBSCRIBE`.
 *   ✅ **Key-Value**: `SET`, `GET`, `DEL`, `EXISTS` (with optional expiration `PX`).
 *   ✅ **Authentication**: Supports password protection.
-*   ✅ **Clean Shutdown**: Uses Daemon threads to ensure your server shuts down instantly.
 
 ## ❌ What it does NOT do
 *   ❌ **Persistence**: Data is **IN-MEMORY ONLY**. It is lost when the server stops. `SAVE` and `BGSAVE` commands are disabled.
@@ -24,7 +23,7 @@ MicroRESP is designed for **Modpack Developers** and **Server Admins** who need:
 *   ❌ **Clustering**: No support for Redis Cluster or Sentinel.
 *   ❌ **High Performance**: It is single-threaded and not optimized for massive production workloads. Use real Redis for that.
 
-## ⚙️ Configuration
+##  Configuration
 The configuration file is located at `config/microresp/microresp.json`.
 
 ```json
@@ -35,7 +34,7 @@ The configuration file is located at `config/microresp/microresp.json`.
 }
 ```
 
-## 👨‍💻 Developer Usage
+##  Developer Usage
 
 Since MicroRESP speaks standard Redis, you don't need to depend on this mod's code directly. just use your favorite Redis library!
 
