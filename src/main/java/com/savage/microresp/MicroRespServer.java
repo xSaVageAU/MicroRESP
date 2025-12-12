@@ -62,12 +62,8 @@ public class MicroRespServer {
 
     public void start() throws IOException {
         serverSocket = new ServerSocket(port);
-        // Fix: Limit threads to prevent OOM/DoS, and use Daemon threads so we don't block shutdown
-        executorService = Executors.newFixedThreadPool(maxConnections, r -> {
-            Thread t = Executors.defaultThreadFactory().newThread(r);
-            t.setDaemon(true);
-            return t;
-        });
+        // Fix: Use Java 21 Virtual Threads for high performance and scalability
+        executorService = Executors.newVirtualThreadPerTaskExecutor();
         
         // Background tasks (Cleanup only)
         scheduledTaskService = Executors.newSingleThreadScheduledExecutor(r -> {
@@ -117,12 +113,20 @@ public class MicroRespServer {
                     clientSocket.setKeepAlive(true); // Detect broken connections
                     String clientId = "client-" + (++clientCounter);
                     
+                    // Manually enforce max connections since Virtual Thread executor is unbounded
+                    if (clientConnections.size() >= maxConnections) {
+                        LOGGER.warn("Max connections reached ({}), rejecting client {}", maxConnections, clientId);
+                        clientSocket.close();
+                        continue;
+                    }
+
                     LOGGER.info("Accepted connection from {} (ID: {})", clientSocket.getRemoteSocketAddress(), clientId);
                     
                     try {
                         executorService.submit(() -> handleClient(clientSocket, clientId));
                     } catch (RejectedExecutionException e) {
-                        LOGGER.warn("Max connections reached, rejecting client {}", clientId);
+                         // Should rare with virtual threads, but good practice
+                        LOGGER.warn("Executor rejected client {}", clientId);
                         clientSocket.close();
                     }
                 } catch (IOException e) {
