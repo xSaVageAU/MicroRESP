@@ -1,0 +1,27 @@
+{
+	"schemaVersion": 1,
+	"id": "microresp",
+	"version": "${version}",
+	"name": "MicroRESP",
+	"description": "A lightweight, embedded RESP-compatible Pub/Sub server for Fabric. No external Redis required.",
+	"authors": [
+		"Savage"
+	],
+	"contact": {
+		"homepage": "https://fabricmc.net/"
+	},
+	"license": "MIT",
+	"icon": "assets/microresp/icon.png",
+	"environment": "*",
+	"entrypoints": {
+		"main": [
+			"com.savage.microresp.MicroRespMod"
+		]
+	},
+	"depends": {
+		"fabricloader": ">=0.18.2",
+		"minecraft": "~1.21.10",
+		"java": ">=21",
+		"fabric-api": "*"
+	}
+}
