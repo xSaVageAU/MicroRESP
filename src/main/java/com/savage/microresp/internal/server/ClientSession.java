@@ -8,11 +8,13 @@ import java.util.Set;
 public class ClientSession {
     private final String clientId;
     private final BufferedWriter writer;
+    private final java.net.Socket socket;
     private final Set<String> subscriptions = new HashSet<>();
     private boolean authenticated = false;
 
-    public ClientSession(String clientId, BufferedWriter writer) {
+    public ClientSession(String clientId, java.net.Socket socket, BufferedWriter writer) {
         this.clientId = clientId;
+        this.socket = socket;
         this.writer = writer;
     }
 
@@ -22,6 +24,10 @@ public class ClientSession {
 
     public BufferedWriter getWriter() {
         return writer;
+    }
+
+    public java.net.Socket getSocket() {
+        return socket;
     }
 
     public Set<String> getSubscriptions() {

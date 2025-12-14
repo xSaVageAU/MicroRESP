@@ -120,7 +120,7 @@ public class MicroRespServer {
     private void handleClient(Socket socket, String clientId) {
         ClientSession session;
         try {
-            session = new ClientSession(clientId, new BufferedWriter(new OutputStreamWriter(socket.getOutputStream())));
+            session = new ClientSession(clientId, socket, new BufferedWriter(new OutputStreamWriter(socket.getOutputStream())));
             activeSessions.put(clientId, session);
         } catch (IOException e) {
             LOGGER.error("Failed to create session for {}", clientId, e);
@@ -139,8 +139,23 @@ public class MicroRespServer {
                         String bulkLen = reader.readLine();
                         if (bulkLen == null || !bulkLen.startsWith("$")) break;
                         int len = Integer.parseInt(bulkLen.substring(1));
-                        if (len == -1) commands[i] = null;
-                        else commands[i] = reader.readLine();
+                        
+                        if (len == -1) {
+                            commands[i] = null;
+                        } else {
+                            // Binary Safe Read
+                            char[] data = new char[len];
+                            int read = 0;
+                            while (read < len) {
+                                int c = reader.read(data, read, len - read);
+                                if (c == -1) throw new IOException("Unexpected EOF");
+                                read += c;
+                            }
+                            commands[i] = new String(data);
+                            // Consume trailing CRLF
+                            reader.read(); // \r
+                            reader.read(); // \n
+                        }
                     }
                     
                     if (commands.length > 0 && commands[0] != null) {
@@ -244,6 +259,12 @@ public class MicroRespServer {
                         for (int i = 1; i < args.length; i++) {
                             String channel = args[i];
                             int subs = pubSubManager.subscribe(session, channel);
+                            
+                            // Disable timeout for subscribers (infinite keep-alive)
+                            try {
+                                session.getSocket().setSoTimeout(0);
+                            } catch (Exception ignored) {} 
+
                             // Write standard subscribe response for EACH channel
                             RespProtocol.writeArrayHeader(writer, 3);
                             RespProtocol.writeBulkString(writer, "subscribe");
@@ -284,6 +305,23 @@ public class MicroRespServer {
                 case "SAVE":
                 case "BGSAVE":
                     RespProtocol.writeError(writer, "persistence not supported");
+                    break;
+                case "COMMAND":
+                    // Return empty array to satisfy clients checking for commands
+                    RespProtocol.writeArrayHeader(writer, 0);
+                    break;
+                case "INFO":
+                    String info = "# Server\r\n" +
+                                "redis_version:6.0.0\r\n" +
+                                "tcp_port:" + port + "\r\n" +
+                                "connected_clients:" + activeSessions.size() + "\r\n" +
+                                "# Keyspace\r\n" +
+                                "db0:keys=" + respStore.keys("*").size() + ",expires=0,avg_ttl=0\r\n";
+                    RespProtocol.writeBulkString(writer, info);
+                    break;
+                case "SELECT":
+                    // We only support DB 0 effectively, but say OK to allow connection
+                    RespProtocol.writeSimpleString(writer, "OK");
                     break;
                 default:
                     RespProtocol.writeError(writer, "unknown command '" + cmd + "'");
