@@ -240,13 +240,16 @@ public class MicroRespServer {
                     if (args.length < 2) {
                         RespProtocol.writeError(writer, "wrong number of arguments for 'subscribe' command");
                     } else {
-                        String channel = args[1];
-                        int subs = pubSubManager.subscribe(session, channel);
-                        // Write standard subscribe response
-                        RespProtocol.writeArrayHeader(writer, 3);
-                        RespProtocol.writeBulkString(writer, "subscribe");
-                        RespProtocol.writeBulkString(writer, channel);
-                        RespProtocol.writeInteger(writer, subs);
+                        // Support multiple channels
+                        for (int i = 1; i < args.length; i++) {
+                            String channel = args[i];
+                            int subs = pubSubManager.subscribe(session, channel);
+                            // Write standard subscribe response for EACH channel
+                            RespProtocol.writeArrayHeader(writer, 3);
+                            RespProtocol.writeBulkString(writer, "subscribe");
+                            RespProtocol.writeBulkString(writer, channel);
+                            RespProtocol.writeInteger(writer, subs);
+                        }
                     }
                     break;
                 case "UNSUBSCRIBE":
@@ -255,12 +258,14 @@ public class MicroRespServer {
                         // Ideally we loop subs. Current impl requires arg.
                          RespProtocol.writeError(writer, "wrong number of arguments for 'unsubscribe' command");
                     } else {
-                        String channel = args[1];
-                        int subs = pubSubManager.unsubscribe(session, channel);
-                        RespProtocol.writeArrayHeader(writer, 3);
-                        RespProtocol.writeBulkString(writer, "unsubscribe");
-                        RespProtocol.writeBulkString(writer, channel);
-                        RespProtocol.writeInteger(writer, subs);
+                        for (int i = 1; i < args.length; i++) {
+                            String channel = args[i];
+                            int subs = pubSubManager.unsubscribe(session, channel);
+                            RespProtocol.writeArrayHeader(writer, 3);
+                            RespProtocol.writeBulkString(writer, "unsubscribe");
+                            RespProtocol.writeBulkString(writer, channel);
+                            RespProtocol.writeInteger(writer, subs);
+                        }
                     }
                     break;
                 case "KEYS":
